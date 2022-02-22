@@ -1,0 +1,17 @@
+2022-01-11 22:14:00,613 User with Mucahit successfully registered.
+2022-01-11 22:14:00,614 Accepted new connection from 192.168.1.200:57380 username:Mucahit
+2022-01-11 22:14:06,618 User with Ahmet successfully registered.
+2022-01-11 22:14:06,619 Accepted new connection from 192.168.1.200:57381 username:Ahmet
+2022-01-11 22:14:16,087 User with Hakan successfully registered.
+2022-01-11 22:14:16,088 Accepted new connection from 192.168.1.200:57382 username:Hakan
+2022-01-11 22:14:24,805 User with Bera successfully registered.
+2022-01-11 22:14:24,807 Accepted new connection from 192.168.1.200:57383 username:Bera
+2022-01-11 22:14:35,741 Received message from Bera: merhaba arkada\u015flar
+2022-01-11 22:14:41,128 Received message from Mucahit: Merhaba
+2022-01-11 22:14:53,216 User: Hakan requested private chat with user: Mucahit
+2022-01-11 22:14:59,727 The PM start between Hakan and Mucahit
+2022-01-11 22:16:29,931 PM between users Hakan and Mucahit closed.
+2022-01-11 22:16:38,458 Received message from Mucahit: Why you left me!!
+2022-01-11 22:16:46,967 User: Bera requested private chat with user: Hakan
+2022-01-11 22:17:44,492 Lost connection from Hakan
+2022-01-11 22:18:16,203 Could not receive any connection from USER: Hakan  for 20 secs and he/she become offline!

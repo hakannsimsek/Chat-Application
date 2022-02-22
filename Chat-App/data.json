@@ -1,0 +1,20 @@
+{
+    "client": [
+        {
+            "name": "Mucahit",
+            "password": "1234"
+        },
+        {
+            "name": "Ahmet",
+            "password": "4578"
+        },
+        {
+            "name": "Hakan",
+            "password": "sifreeee"
+        },
+        {
+            "name": "Bera",
+            "password": "polye"
+        }
+    ]
+}
