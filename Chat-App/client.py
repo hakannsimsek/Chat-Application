@@ -3,7 +3,6 @@ import time
 import errno
 import sys
 import threading
-from server import rsa_private_key_registry
 # Mucahit Tanacioglu 150115006
 # Ahmet Hakan Simsek 150117060
 
@@ -14,6 +13,9 @@ PORT = 1234
 UDP_PORT = 12345
 
 IS_PM = False
+PM_PARTNER_RSA_KEY = ""
+
+private_rsa_key_registry = {}
 
 
 # function to send general message
@@ -43,7 +45,7 @@ def send_message(client_socket, username):
             username_header = f"{len(username):< {HEADER_LENGTH}}".encode("utf-8")
             message_header = f"{len(message) :< {HEADER_LENGTH}}".encode("utf-8")
             message_type_header = f"{len(message_type) :< {HEADER_LENGTH}}".encode("utf-8")
-            print('Client private', rsa_private_key_registry[username])
+            # print('Client private', rsa_private_key_registry[username])
             # send message to server
             client_socket.send(
                 username_header + message_type_header + message_header + username.encode("utf-8") + message_type.encode(
@@ -80,21 +82,29 @@ def receive_messaege(client_socket, my_username):
                 message_type_length = int(message_type_header.decode("utf-8").strip())
                 message_header = client_socket.recv(HEADER_LENGTH)
                 message_length = int(message_header.decode("utf-8").strip())
+                private_rsa_key_header = client_socket.recv(HEADER_LENGTH)
+                private_rsa_key_length = int(private_rsa_key_header.decode("utf-8").strip())
 
                 username = client_socket.recv(username_length).decode("utf-8")
                 message_type = client_socket.recv(message_type_length).decode("utf-8")
                 message = client_socket.recv(message_length).decode("utf-8")
+                rsa_private_key = client_socket.recv(private_rsa_key_length).decode("utf-8")
 
                 ## classify message types and take action accordingly
 
                 # handle login respond message type
                 if message_type == "LOGINRES":
+                    private_rsa_key_registry[username] = rsa_private_key
+                    print('{} {}'.format(username, rsa_private_key))
                     return message
                 # handle pm request message type
                 elif message_type == "PMREQ":
+                    rsa_public_key = rsa_private_key
                     respond_ = input(f"{message} > ")
 
                     if respond_ == "Y" or respond_ == "y":
+                        global PM_PARTNER_RSA_KEY
+                        PM_PARTNER_RSA_KEY = rsa_public_key
                         send_simple_message(my_username, "PMRES", "ACCEPT")
                         global IS_PM
                         IS_PM = True

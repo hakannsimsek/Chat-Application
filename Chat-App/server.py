@@ -10,12 +10,9 @@ import utils
 
 rsa_key_registry = {}
 
-rsa_private_key_registry = {}
-
 def generate_public_and_private_rsa_keys_for_user(username):
     private_key, public_key = utils.get_private_and_public_rsa_keys()
     rsa_key_registry[username] = public_key.export_key()
-    rsa_private_key_registry[username] = private_key.export_key()
     return private_key, public_key
 
 # Create and configure logger
@@ -224,9 +221,12 @@ def handle_login(server_name, server_header, server_socket):
         message_type_header = f"{len(message_type) :< {HEADER_LENGTH}}".encode("utf-8")
         msg_ = "Login success!"
         msg_header = f"{len(msg_) :< {HEADER_LENGTH}}".encode("utf-8")
+        private_rsa_key, _ = generate_public_and_private_rsa_keys_for_user(user['username'])
+        private_rsa_header = f"{len(private_rsa_key.export_key()) :< {HEADER_LENGTH}}".encode("utf-8")
+        print('Server {} {}'.format(user['username'], private_rsa_key.export_key()))
         client_socket.send(
-            server_header + message_type_header + msg_header + server_name + message_type + msg_.encode(
-                "utf-8"))
+            server_header + message_type_header + msg_header + private_rsa_header + server_name + message_type + msg_.encode(
+                "utf-8") + private_rsa_key.export_key())
         socket_list.append(client_socket)
         user["chatgroup"] = "public"
         clients[client_socket] = user
@@ -238,10 +238,8 @@ def handle_login(server_name, server_header, server_socket):
         udp_client_base = threading.Thread(target=udp_check_for_user, args=([user['username']]))
         udp_client_base.start()
 
-        logger.info(f"Accepted new connection from {client_address[0]}:{client_address[1]} username:{user['username']}")
-    generate_public_and_private_rsa_keys_for_user(user['username'])
-    print('Server {} > {}'.format(user['username'], rsa_key_registry))
 
+        logger.info(f"Accepted new connection from {client_address[0]}:{client_address[1]} username:{user['username']}")
 
 # function to handle pm request
 def handle_pm_request(message, notified_socket, server_header, server_name):
@@ -257,10 +255,14 @@ def handle_pm_request(message, notified_socket, server_header, server_name):
         message_header = f"{len(message_) :< {HEADER_LENGTH}}".encode("utf-8")
 
         message_type_header = f"{len('PMREQ') :< {HEADER_LENGTH}}".encode("utf-8")
+        exported_public_key = rsa_key_registry[message['username'].decode('utf-8')].export_key()
+
+        public_rsa_key_header = f"{len(exported_public_key) :< {HEADER_LENGTH}}".encode("utf-8")
 
         pm_to_socket.send(
-            server_header + message_type_header + message_header + server_name + "PMREQ".encode(
-                "utf-8") + message_)
+            server_header + message_type_header + message_header + public_rsa_key_header + server_name + "PMREQ".encode(
+                "utf-8") + message_ + exported_public_key)
+        
         logger.info(
             f"User: {message['username'].decode('utf-8')} requested private chat with user: {pm_to.split(' ')[1]}")
         return
@@ -292,9 +294,12 @@ def handle_pm_response(message, notified_socket, server_header, server_name):
         message_body = f"The user: {message['username'].decode('utf-8')} whom you requested private chat had accept your request,you are moving private chat now!".encode(
             "utf-8")
         msg_header = f"{len(message_body) :< {HEADER_LENGTH}}".encode("utf-8")
+        rsa_public_key_exported = rsa_key_registry[message['username'].decode('utf-8')].export_key()
+        rsa_public_key_header = f"{len(rsa_public_key_exported) :< {HEADER_LENGTH}}".encode(
+            "utf-8")
         pm_partners[notified_socket].send(
-            server_header + message['headers'][1] + msg_header + server_name + "PMRES".encode(
-                "utf-8") + message_body)
+            server_header + message['headers'][1] + msg_header + rsa_public_key_header + server_name + "PMRES".encode(
+                "utf-8") + message_body + rsa_public_key_exported)
         logger.info(
             f"The PM start between {clients[requested_user_socket]['username']} and {clients[notified_socket]['username']}")
         return
