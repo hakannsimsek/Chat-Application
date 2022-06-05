@@ -3,6 +3,7 @@ import time
 import errno
 import sys
 import threading
+from server import rsa_private_key_registry
 # Mucahit Tanacioglu 150115006
 # Ahmet Hakan Simsek 150117060
 
@@ -10,6 +11,7 @@ HEADER_LENGTH = 10
 
 IP = "127.0.0.1"
 PORT = 1234
+UDP_PORT = 12345
 
 IS_PM = False
 
@@ -41,7 +43,7 @@ def send_message(client_socket, username):
             username_header = f"{len(username):< {HEADER_LENGTH}}".encode("utf-8")
             message_header = f"{len(message) :< {HEADER_LENGTH}}".encode("utf-8")
             message_type_header = f"{len(message_type) :< {HEADER_LENGTH}}".encode("utf-8")
-
+            print('Client private', rsa_private_key_registry[username])
             # send message to server
             client_socket.send(
                 username_header + message_type_header + message_header + username.encode("utf-8") + message_type.encode(
@@ -72,7 +74,7 @@ def receive_messaege(client_socket, my_username):
                     print("connection closed by the server")
                     sys.exit()
 
-                # parse message
+                # parse message                
                 username_length = int(username_header.decode("utf-8").strip())
                 message_type_header = client_socket.recv(HEADER_LENGTH)
                 message_type_length = int(message_type_header.decode("utf-8").strip())
@@ -134,7 +136,7 @@ def receive_messaege(client_socket, my_username):
 # udp connection for checking periodically whether user online or not
 def udp_check(sec, udp_socket, username):
     while True:
-        udp_socket.sendto(str(time.time()).encode("utf-8") + str("|" + username).encode("utf-8"), (IP, 12345))
+        udp_socket.sendto(str(time.time()).encode("utf-8") + str("|" + username).encode("utf-8"), (IP, UDP_PORT))
         time.sleep(sec)
 
 

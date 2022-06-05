@@ -3,8 +3,10 @@ from Crypto.PublicKey import RSA
 import hmac
 import string
 import random
+import uuid
 
-user_rsa_key_registry = {}
+def generate_nonce():
+    return uuid.uuid4().hex
 
 def generate_rsa_key(key_size=2048):
     return RSA.generate(key_size)
@@ -12,11 +14,6 @@ def generate_rsa_key(key_size=2048):
 def get_private_and_public_rsa_keys(key_size=2048):
     key = generate_rsa_key(key_size)
     return key, key.public_key()
-
-def generate_public_and_private_rsa_keys_for_user(username):
-    private_key, public_key = get_private_and_public_rsa_keys()
-    user_rsa_key_registry[username] = private_key
-    return private_key, public_key
 
 def generate_random_string(length):
     return ''.join(random.choice(string.ascii_letters + string.digits + string.punctuation) for i in range(length))
@@ -47,12 +44,3 @@ def find_if_actual_message_match_with_hashed_one(message, hashed_message):
     return hashed_message == get_hashed_message(message)
 
 derived_key_map = derive_keys(secret_hmac_key)
-
-print(find_if_actual_message_match_with_hashed_one('Hello', get_hashed_message('Hello')))
-print(derived_key_map)
-
-generate_public_and_private_rsa_keys_for_user('user1')
-generate_public_and_private_rsa_keys_for_user('user2')
-generate_public_and_private_rsa_keys_for_user('user3')
-
-print(user_rsa_key_registry.keys())

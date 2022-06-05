@@ -23,6 +23,18 @@
         {
             "name": "hakan",
             "password": "12345"
+        },
+        {
+            "name": "bear",
+            "password": "2134"
+        },
+        {
+            "name": "hakan ",
+            "password": "12345"
+        },
+        {
+            "name": "hakn",
+            "password": "12345"
         }
     ]
 }

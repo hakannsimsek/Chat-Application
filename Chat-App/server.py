@@ -4,8 +4,19 @@ import threading
 import json
 import time
 import logging
+import utils
 # Ahmet Hakan Simsek 150117060
 # Mucahit Tanacioglu 150115006
+
+rsa_key_registry = {}
+
+rsa_private_key_registry = {}
+
+def generate_public_and_private_rsa_keys_for_user(username):
+    private_key, public_key = utils.get_private_and_public_rsa_keys()
+    rsa_key_registry[username] = public_key.export_key()
+    rsa_private_key_registry[username] = private_key.export_key()
+    return private_key, public_key
 
 # Create and configure logger
 logging.basicConfig(filename="server.log",
@@ -228,6 +239,8 @@ def handle_login(server_name, server_header, server_socket):
         udp_client_base.start()
 
         logger.info(f"Accepted new connection from {client_address[0]}:{client_address[1]} username:{user['username']}")
+    generate_public_and_private_rsa_keys_for_user(user['username'])
+    print('Server {} > {}'.format(user['username'], rsa_key_registry))
 
 
 # function to handle pm request
@@ -311,6 +324,7 @@ def receive_connection(socket_list, clients, server_socket):
             # handle login request of client
             if notified_socket == server_socket:
                 handle_login(server_name, server_header, server_socket)
+
                 continue
 
             else:
