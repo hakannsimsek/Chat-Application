@@ -4,7 +4,6 @@ import hmac
 import string
 import random
 
-
 user_rsa_key_registry = {}
 
 def generate_rsa_key(key_size=2048):
@@ -27,7 +26,6 @@ def generate_master_key():
 
 def derive_keys(master_key):
     random_index_point_tuple = [random.randint(0, len(master_key) - 33) for i in range(6)]
-    print(random_index_point_tuple)
     return {
         'client_write_key': master_key[random_index_point_tuple[0]:random_index_point_tuple[0] + 32],
         'server_write_key': master_key[random_index_point_tuple[1]:random_index_point_tuple[1] + 32],
@@ -43,7 +41,7 @@ def convert_string_to_bytes(string):
 secret_hmac_key = generate_master_key()
 
 def get_hashed_message(message, master_key=secret_hmac_key):
-    return hmac.new(convert_string_to_bytes(secret_hmac_key), convert_string_to_bytes(message), digestmod=hashlib.sha256).hexdigest()
+    return hmac.new(convert_string_to_bytes(master_key), convert_string_to_bytes(message), digestmod=hashlib.sha256).hexdigest()
 
 def find_if_actual_message_match_with_hashed_one(message, hashed_message):
     return hashed_message == get_hashed_message(message)
